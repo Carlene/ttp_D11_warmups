@@ -81,6 +81,37 @@ group by 1
 
 order by 2 DESC
 
+--with named days
+
+select
+CASE 
+WHEN extract(dow from orderdate) = 0 THEN 'Sunday'
+WHEN extract(dow from orderdate) = 1 THEN 'Monday'
+WHEN extract(dow from orderdate) = 2 THEN 'Tuesday'
+WHEN extract(dow from orderdate) = 3 THEN 'Wednesday'
+WHEN extract(dow from orderdate) = 4 THEN 'Thursday'
+WHEN extract(dow from orderdate) = 5 THEN 'Friday'
+WHEN extract(dow from orderdate) = 6 THEN 'Saturday'
+END as day_of_week
+,count(orderid) as ordercount
+
+from orders
+
+where extract(year from orderdate) = 
+(select extract(year from orderdate) as two_year
+
+from orders
+
+group by 1
+
+order by 1 DESC
+
+limit 1)
+
+group by 1
+
+order by 2 DESC
+
 -- sundays and tuesdays are pretty light for orders, otherwise they're pretty consistent with a spike in orders on fridays
 
 
