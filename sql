@@ -22,8 +22,31 @@ from
  orders as o
 
 where 
- extract(year from orderdate) = 2016
-or extract(year from orderdate) = 2015
+ extract(year from orderdate) = 
+	(select extract(year from orderdate) as two_year
+
+	from orders
+
+	group by 1
+
+	order by 1 DESC
+
+	limit 1)
+
+or 
+
+extract(year from orderdate) = 
+	(select extract(year from orderdate) as two_year
+
+	from orders
+
+	group by 1
+
+	order by 1 DESC
+
+	offset 1
+
+	limit 1)
 
 group by 
  1
@@ -37,8 +60,33 @@ order by
 -- On which day of the WEEK are the most *orders* being placed (use only the most recent year of data)?
 -- What can you say about any trends in orders being placed? 
 
+select
+extract(dow from orderdate) as day_of_week
+,count(orderid) as ordercount
 
+from orders
 
+where extract(year from orderdate) = 
+(select extract(year from orderdate) as two_year
+
+from orders
+
+group by 1
+
+order by 1 DESC
+
+limit 1)
+
+group by 1
+
+order by 2 DESC
+
+-- sundays and tuesdays are pretty light for orders, otherwise they're pretty consistent with a spike in orders on fridays
 
 
 --How out of date is this database (ie the last order compared to today's date)
+
+select
+current_date - max(orderdate) as days_since_last_order
+
+from orders
